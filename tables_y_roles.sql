@@ -60,6 +60,7 @@ CREATE TABLE usuarios (
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_acceso TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE,
+	auth_id UUID UNIQUE REFERENCES auth.users(id),
     UNIQUE(tipo_identificacion, numero_identificacion)
 );
 
@@ -85,7 +86,7 @@ CREATE TABLE reservas (
     check_out TIMESTAMP,
     costo_total DECIMAL(10,2),
     penalizacion DECIMAL(10,2) DEFAULT 0,
-    id_usuario INT NOT NULL REFERENCES usuarios(id_usuario),
+	auth_id_usuario UUID REFERENCES usuarios(auth_id),
     id_habitacion INT NOT NULL REFERENCES habitaciones(id_habitacion),
     observaciones TEXT,
     CONSTRAINT fechas_correctas CHECK (fecha_inicio < fecha_fin),
@@ -120,15 +121,15 @@ CREATE TABLE reportes (
     periodo_inicio DATE NOT NULL,
     periodo_fin DATE NOT NULL,
     datos JSONB,
-    id_usuario INT REFERENCES usuarios(id_usuario),
+	auth_id_usuario UUID REFERENCES usuarios(auth_id),
     CONSTRAINT periodo_valido CHECK (periodo_inicio <= periodo_fin)
 );
 
-CREATE INDEX idx_usuarios_email ON usuarios(email);
+CREATE INDEX idx_usuarios_id ON usuarios(auth_id);
 CREATE INDEX idx_usuarios_rol ON usuarios(rol_usuario);
 CREATE INDEX idx_reservas_fechas ON reservas(fecha_inicio, fecha_fin);
 CREATE INDEX idx_reservas_estado ON reservas(estado);
-CREATE INDEX idx_reservas_usuario ON reservas(id_usuario);
+CREATE INDEX idx_reservas_usuario ON reservas(auth_id_usuario);
 CREATE INDEX idx_reservas_habitacion ON reservas(id_habitacion);
 CREATE INDEX idx_facturas_reserva ON facturas(id_reserva);
 CREATE INDEX idx_conceptos_factura ON conceptos_facturas(id_factura);

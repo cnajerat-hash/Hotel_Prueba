@@ -1,3 +1,20 @@
+-- Obtener el rol de los usuarios
+CREATE OR REPLACE FUNCTION public.current_user_role()
+RETURNS rol
+LANGUAGE plpgsql SECURITY DEFINER
+STABLE
+AS $$
+DECLARE
+	user_role rol;
+BEGIN
+  SELECT rol_usuario INTO user_role
+  FROM public.usuarios
+  WHERE auth_id = auth.uid()
+  LIMIT 1;
+  RETURN user_role;
+END;
+$$;
+
 -- Función para verificar la activación por correo
 CREATE OR REPLACE FUNCTION public.email_confirmed()
 RETURNS BOOLEAN AS $$
@@ -11,28 +28,25 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 GRANT EXECUTE ON FUNCTION public.email_confirmed() TO authenticated, anon;
 
-CREATE POLICY "Usuarios ven su propio perfil solo con email confirmado"
-ON public.usuarios
-FOR SELECT USING (
-  auth.uid() = auth_id AND email_confirmed()
-);
-
+-- Políticas
 CREATE POLICY "Usuarios actualizan su perfil solo con email confirmado"
 ON public.usuarios
 FOR UPDATE USING (
   auth.uid() = auth_id AND email_confirmed()
 );
 
--- Si el usuario ya se insertó pero no validó su correo, de todos modos se insertará
-CREATE POLICY "Usuarios insertan su propio registro"
+CREATE POLICY "Usuarios pueden insertarse una vez ya se hayan autenticado"
 ON public.usuarios
-FOR INSERT WITH CHECK (auth.uid() = auth_id);
+for insert to authenticated
+WITH CHECK (true);
 
-CREATE POLICY "Administradores ven todos los usuarios"
-ON public.usuarios
+-- Política para SELECT: controla qué pueden VER
+CREATE POLICY "Control de visibilidad de usuarios" 
+ON public.usuarios 
 FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM public.usuarios
-    WHERE auth_id = auth.uid() AND rol_usuario = 'Administrador'
-  )
+	(auth.uid() = auth_id)
+	OR
+	(current_user_role() = 'Administrador')
+	OR
+	(current_user_role() = 'Recepcionista' AND rol_usuario != 'Administrador')
 );
