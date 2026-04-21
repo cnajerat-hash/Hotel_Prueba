@@ -3,6 +3,7 @@ CREATE TYPE rol AS ENUM (
 	'Recepcionista',
 	'Administrador'
 );
+
 CREATE TYPE estado_reserva AS ENUM (
 	'Pendiente',
 	'Confirmada',
@@ -10,12 +11,14 @@ CREATE TYPE estado_reserva AS ENUM (
 	'Completada',
 	'No_show'
 );
+
 CREATE TYPE tipo_habitacion AS ENUM (
 	'Individual',
 	'Doble',
 	'Suite',
 	'Familiar'
 );
+
 CREATE TYPE estado_habitacion AS ENUM (
 	'Libre',
 	'Reservada',
@@ -23,18 +26,21 @@ CREATE TYPE estado_habitacion AS ENUM (
 	'Mantenimiento',
 	'Limpieza'
 );
+
 CREATE TYPE tipo_reporte AS ENUM (
 	'Ocupación diaria',
 	'Ocupación semanal',
 	'Ingresos periodo',
 	'Lista huespedes'
 );
+
 CREATE TYPE tipo_identificacion AS ENUM (
 	'CC',
 	'CE',
 	'Pasaporte',
 	'Otro'
 );
+
 CREATE TYPE metodo_pago AS ENUM (
 	'Efectivo',
 	'Tarjeta crédito',
@@ -42,6 +48,7 @@ CREATE TYPE metodo_pago AS ENUM (
 	'Transferencia',
 	'Otro'
 );
+
 CREATE TYPE estado_pago AS ENUM (
 	'Pendiente',
 	'Pagado',
